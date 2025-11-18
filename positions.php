@@ -1,30 +1,16 @@
 <?php
-// positions.php - CRUD for Positions table
 require_once 'config.php';
 
-// Check if editing
-$edit_mode = false;
-$edit_position = null;
-
-if (isset($_GET['edit'])) {
-    $edit_mode = true;
-    $edit_id = $_GET['edit'];
-    
-    // Fetch the position's data
-    $result = $conn->query("SELECT * FROM Positions WHERE posID=$edit_id");
-    $edit_position = $result->fetch_assoc();
-}
-
-// Handle Add Position
+// add position
 if (isset($_POST['add'])) {
     $posName = $_POST['posName'];
     $numOfPositions = $_POST['numOfPositions'];
     $posStat = $_POST['posStat'];
-    
+
     $conn->query("INSERT INTO Positions (posName, numOfPositions, posStat) VALUES ('$posName', '$numOfPositions', '$posStat')");
 }
 
-// Handle Edit Position
+// edit position
 if (isset($_POST['edit'])) {
     $id = $_POST['id'];
     $posName = $_POST['posName'];
@@ -34,13 +20,22 @@ if (isset($_POST['edit'])) {
     $conn->query("UPDATE Positions SET posName='$posName', numOfPositions='$numOfPositions', posStat='$posStat' WHERE posID=$id");
 }
 
-// Handle Deactivate Position
+$edit_mode = false;
+$edit_position = null;
+
+if (isset($_GET['edit'])) {
+    $edit_mode = true;
+    $edit_id = $_GET['edit'];
+    
+    $result = $conn->query("SELECT * FROM Positions WHERE posID=$edit_id");
+    $edit_position = $result->fetch_assoc();
+}
+
 if (isset($_GET['deactivate'])) {
     $id = $_GET['deactivate'];
     $conn->query("UPDATE Positions SET posStat='closed' WHERE posID=$id");
 }
 
-// Fetch all positions
 $positions = $conn->query("SELECT * FROM Positions");
 ?>
 
@@ -56,10 +51,12 @@ $positions = $conn->query("SELECT * FROM Positions");
         <option value="open" <?= $edit_position['posStat'] == 'open' ? 'selected' : '' ?>>Open</option>
         <option value="closed" <?= $edit_position['posStat'] == 'closed' ? 'selected' : '' ?>>Closed</option>
     </select><br>
+
     <button type="submit" name="edit">Update Position</button>
     <a href="positions.php">Cancel</a>
 </form>
 <?php else: ?>
+
 <!-- Add Position Form -->
 <button><a href="index.php">Back</a></button>
 <h2>Positions Management</h2>
@@ -72,6 +69,7 @@ $positions = $conn->query("SELECT * FROM Positions");
         <option value="open">Open</option>
         <option value="closed">Closed</option>
     </select><br>
+
     <button type="submit" name="add">Add Position</button>
 </form>
 <?php endif; ?>
