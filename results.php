@@ -1,28 +1,30 @@
 <?php
-// result.php - election results
 require_once 'config.php';
 
-// calculate results
-$results = array();
-$positions = $conn->query("SELECT * FROM Positions WHERE posStat='open'");
-while($posRow = $positions->fetch_assoc()) {
-    $results[$posRow["posID"]] = array(
-        "positon" => $posRow["posName"],
-        "candidates" => array()
-    );
+$results = [];
+$totalVoters = $conn->query("SELECT COUNT(*) AS c FROM Voters WHERE voterStat='active' AND voted='y'")->fetch_assoc()['c'];
 
-    $candidates = $conn->query("SELECT * FROM Candidates WHERE posID=".$posRow["posID"]." AND candStat='active'");
-    while($candRow = $candidates->fetch_assoc()) {
-        $totalVotes = $conn->query("SELECT COUNT(*) as count FROM Votes WHERE candID=".$candRow["candID"])->fetch_assoc()["count"];
-        $totalVoters = $conn->query("SELECT COUNT(*) as count FROM Voters WHERE voterStat='active' AND voted='y'")->fetch_assoc()["count"];
-        
-        $percentage = $totalVoters > 0 ? round(($totalVotes / $totalVoters) * 100, 2) : 0;
-        
-        $results[$posRow["posID"]]["candidates"][$candRow["candID"]] = array(
-            "name" => $candRow["candFName"]." ".$candRow["candMName"]." ".$candRow["candLName"],
-            "votes" => $totalVotes,
-            "percentage" => $percentage
-        );
+$pos = $conn->query("SELECT posID, posName FROM Positions WHERE posStat='open'");
+while ($p = $pos->fetch_assoc()) {
+
+    $results[$p['posID']] = [
+        "position"   => $p['posName'],
+        "candidates" => []
+    ];
+
+    $cands = $conn->query("SELECT * FROM Candidates WHERE posID={$p['posID']} AND candStat='active'");
+    while ($c = $cands->fetch_assoc()) {
+
+        $votes = $conn->query("SELECT COUNT(*) AS c FROM Votes WHERE candID={$c['candID']}")->fetch_assoc()['c'];
+        $percent = $totalVoters ? round($votes / $totalVoters * 100, 2) : 0;
+
+        $name = trim("{$c['candFName']} {$c['candMName']} {$c['candLName']}");
+
+        $results[$p['posID']]["candidates"][$c['candID']] = [
+            "name"       => $name,
+            "votes"      => $votes,
+            "percentage" => $percent
+        ];
     }
 }
 ?>
@@ -54,4 +56,5 @@ while($posRow = $positions->fetch_assoc()) {
         </table>
         <br>
     <?php endforeach; ?>
+
 </body>
