@@ -56,50 +56,71 @@ $candidates = $conn->query("SELECT c.*, p.posName
 <body>
     <button><a href="index.php">Back</a></button>
     <h1>CANDIDATE MANAGEMENT</h1>
-    <!-- editing candidates form-->
-    <?php if($edit_mode && $edit_candidate):?>
-    <form method="post">
-        <input type="hidden" name="id" value="<?=$edit_candidate['candID']?>">
-        FIRST NAME: <input type="text" name="candFName" value="<?=$edit_candidate['candFName']?>" required><br>
-        MIDDLE NAME: <input type="text" name="candMName" value="<?=$edit_candidate['candMName']?>" required><br>
-        LAST NAME: <input type="text" name="candLName" value="<?=$edit_candidate['candLName']?>" required><br>
-        POSITION:
-        <select name="posID">
-            <?php while($p = $positions->fetch_assoc()): ?>
-                <option value="<?= $p['posID'] ?>"><?= $p['posName'] ?></option>
-            <?php endwhile;?>
-        </select><br>
-        STATUS:
-        <select name="candStat">
-            <option value="active" <?= $edit_candidate['candStat']=='active' ? 'selected' : '' ?>>active</option>
-            <option value="inactive" <?= $edit_candidate['candStat']=='inactive' ? 'selected' : '' ?>>inactive</option>
-        </select><br>
-        <button type="submit" name="edit">Update Candidate</button>
-        <a href="candidates.php">Cancel</a>
-    </form>
+
+    <?php if ($edit_mode && $edit_candidate): ?>
+
+        <!-- edit candidates -->
+        <h3>EDIT CANDIDATE</h3>
+        <form method="post">
+            <input type="hidden" name="id" value="<?= $edit_candidate['candID'] ?>">
+
+            FIRST NAME: 
+            <input type="text" name="candFName" value="<?= $edit_candidate['candFName'] ?>" required><br>
+
+            MIDDLE NAME: 
+            <input type="text" name="candMName" value="<?= $edit_candidate['candMName'] ?>" required><br>
+
+            LAST NAME: 
+            <input type="text" name="candLName" value="<?= $edit_candidate['candLName'] ?>" required><br>
+
+            POSITION:
+            <select name="posID">
+                <?php foreach ($positions as $p): ?>
+                    <option value="<?= $p['posID'] ?>"><?= $p['posName'] ?></option>
+                <?php endforeach; ?>
+            </select><br>
+
+            STATUS:
+            <select name="candStat">
+                <option value="active"  <?= $edit_candidate['candStat']=='active' ? 'selected' : '' ?>>Active</option>
+                <option value="inactive" <?= $edit_candidate['candStat']=='inactive' ? 'selected' : '' ?>>Inactive</option>
+            </select><br>
+
+            <button type="submit" name="edit">Update</button>
+            <a href="candidates.php">Cancel</a>
+        </form>
+
     <?php else: ?>
-    <!-- adding candidates form -->
-    <h3>ADDING CANDIDATES</h3>
-    <form method="post">
-        <input type="hidden" name="id" value="">
-        FIRST NAME: <input type="text" name="candFName" required><br>
-        MIDDLE NAME: <input type="text" name="candMName" required><br>
-        LAST NAME: <input type="text" name="candLName" required><br>
-        POSITION:
-        <select name="posID">
-            <?php while($p = $positions->fetch_assoc()):?>
-                <option value="<?= $p['posID'] ?>"><?= $p['posName'] ?></option>
-            <?php endwhile;?>
-        </select><br>
-        STATUS:
-        <select>
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
-        </select><br>
-        <button type="submit" name="add">Add Candidate</button>
-    </form>
+
+        <!-- add candidates -->
+        <h3>ADD CANDIDATE</h3>
+        <form method="post">
+
+            FIRST NAME: <input type="text" name="candFName" required><br>
+            MIDDLE NAME: <input type="text" name="candMName" required><br>
+            LAST NAME: <input type="text" name="candLName" required><br>
+
+            POSITION:
+            <select name="posID">
+                <?php foreach ($positions as $p): ?>
+                    <option value="<?= $p['posID'] ?>"><?= $p['posName'] ?></option>
+                <?php endforeach; ?>
+            </select><br>
+
+            STATUS:
+            <select name="candStat">
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+            </select><br>
+
+            <button type="submit" name="add">Add</button>
+        </form>
+
     <?php endif; ?>
 
+    <br><br>
+
+    <!-- table list -->
     <table border="1">
         <tr>
             <th>ID</th>
@@ -109,20 +130,23 @@ $candidates = $conn->query("SELECT c.*, p.posName
             <th>ACTIONS</th>
         </tr>
 
-        <?php while($row = $candidates->fetch_assoc()):?>
+        <?php foreach ($candidates as $row): ?>
             <tr>
                 <td><?= $row['candID'] ?></td>
-                <td><?= $row['candFName'] ?> <?= $row['candMName'] ?> <?= $row['candLName'] ?></td>
+                <td><?= $row['candFName'] . " " . $row['candMName'] . " " . $row['candLName'] ?></td>
                 <td><?= $row['posName'] ?></td>
                 <td><?= $row['candStat'] ?></td>
+
                 <td>
                     <a href="?edit=<?= $row['candID'] ?>">EDIT</a>
-                    <?php if($row['candStat'] == 'active'):?>
+                    <?php if ($row['candStat'] == 'active'): ?>
                         <a href="?deactivate=<?= $row['candID'] ?>">DEACTIVATE</a>
                     <?php endif; ?>
                 </td>
             </tr>
-        <?php endwhile;?>
-    </table><br>
+        <?php endforeach; ?>
+    </table>
+
 </body>
+
 </html>
