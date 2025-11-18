@@ -1,21 +1,7 @@
 <?php
-// voters.php - CRUD for Voters table
 require_once 'config.php';
 
-// Check if editing
-$edit_mode = false;
-$edit_voter = null;
-
-if (isset($_GET['edit'])) {
-    $edit_mode = true;
-    $edit_id = $_GET['edit'];
-    
-    // Fetch the voter's data
-    $result = $conn->query("SELECT * FROM Voters WHERE voterID='$edit_id'");
-    $edit_voter = $result->fetch_assoc();
-}
-
-// Handle Add Voter
+// add
 if (isset($_POST['add'])) {
     $voterID = $_POST['voterID'];
     $voterPass = password_hash($_POST['voterPass'], PASSWORD_DEFAULT);
@@ -28,7 +14,7 @@ if (isset($_POST['add'])) {
     $conn->query("INSERT INTO Voters (voterID, voterPass, voterFName, voterMName, voterLName, voterStat, voted) VALUES ('$voterID', '$voterPass', '$voterFName', '$voterMName', '$voterLName', '$voterStat', '$voted')");
 }
 
-// Handle Edit Voter
+// edit
 if (isset($_POST['edit'])) {
     $id = $_POST['id'];
     $voterPass = password_hash($_POST['voterPass'], PASSWORD_DEFAULT);
@@ -41,18 +27,27 @@ if (isset($_POST['edit'])) {
     $conn->query("UPDATE Voters SET voterPass='$voterPass', voterFName='$voterFName', voterMName='$voterMName', voterLName='$voterLName', voterStat='$voterStat', voted='$voted' WHERE voterID='$id'");
 }
 
-// Handle Deactivate Voter
+$edit_mode = false;
+$edit_voter = null;
+
+if (isset($_GET['edit'])) {
+    $edit_mode = true;
+    $edit_id = $_GET['edit'];
+    
+    $result = $conn->query("SELECT * FROM Voters WHERE voterID='$edit_id'");
+    $edit_voter = $result->fetch_assoc();
+}
+
 if (isset($_GET['deactivate'])) {
     $id = $_GET['deactivate'];
     $conn->query("UPDATE Voters SET voterStat='inactive' WHERE voterID='$id'");
 }
 
-// Fetch all active voters
 $voters = $conn->query("SELECT * FROM Voters WHERE voterStat='active'");
 ?>
 
 <?php if ($edit_mode && $edit_voter): ?>
-<!-- Edit Voter Form -->
+<!-- edit voter -->
 <h2>Edit Voter</h2>
 <form method="post">
     <input type="hidden" name="id" value="<?= $edit_voter['voterID'] ?>">
@@ -75,8 +70,8 @@ $voters = $conn->query("SELECT * FROM Voters WHERE voterStat='active'");
     <a href="voters.php">Cancel</a>
 </form>
 <?php else: ?>
-<!-- Add Voter Form -->
-<button><a href="index.php">Back</a></button>
+
+<!-- add voter -->
 <h2>Voters Management</h2>
 <form method="post">
     <input type="hidden" name="id" value="">
